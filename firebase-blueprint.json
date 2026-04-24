@@ -1,0 +1,52 @@
+{
+  "entities": {
+    "Document": {
+      "title": "Document",
+      "description": "A document uploaded by the user",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "The unique identifier for the document"
+        },
+        "title": {
+          "type": "string",
+          "description": "The headline/title of the document"
+        },
+        "clientName": {
+          "type": "string",
+          "description": "The name of the client"
+        },
+        "price": {
+          "type": "number",
+          "description": "The price to unlock the document"
+        },
+        "pdfData": {
+          "type": "string",
+          "description": "The base64 encoded PDF data"
+        },
+        "createdAt": {
+          "type": "number",
+          "description": "The timestamp when the document was created"
+        },
+        "ownerId": {
+          "type": "string",
+          "description": "The UID of the user who created the document"
+        },
+        "isUnlocked": {
+          "type": "boolean",
+          "description": "Whether the document has been unlocked"
+        }
+      },
+      "required": ["id", "title", "clientName", "price", "pdfData", "createdAt", "ownerId", "isUnlocked"]
+    }
+  },
+  "firestore": {
+    "/documents/{documentId}": {
+      "schema": {
+        "$ref": "#/entities/Document"
+      },
+      "description": "Stores all documents"
+    }
+  }
+}

@@ -1,0 +1,59 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: documents
+    // Document ID: auto-generated or custom string
+    // Fields:
+    //   - id: string (required) - The unique identifier
+    //   - title: string (required) - The headline/title
+    //   - clientName: string (required) - The name of the client
+    //   - price: number (required) - The price to unlock
+    //   - pdfData: string (required) - The base64 encoded PDF data
+    //   - createdAt: number (required) - The timestamp
+    //   - ownerId: string (required) - The UID of the user who created it
+    //   - isUnlocked: boolean (required) - Whether the document is unlocked
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    function hasOnlyAllowedFields(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+
+    // ===============================================================
+    // Domain Validators
+    // ===============================================================
+    function isValidDocument(data) {
+      return hasOnlyAllowedFields(['id', 'title', 'clientName', 'price', 'pdfData', 'createdAt', 'ownerId', 'isUnlocked']) &&
+             data.id is string && data.id.size() > 0 && data.id.size() < 100 &&
+             data.title is string && data.title.size() > 0 && data.title.size() < 200 &&
+             data.clientName is string && data.clientName.size() > 0 && data.clientName.size() < 100 &&
+             data.price is number && data.price >= 0 &&
+             data.pdfData is string && data.pdfData.size() > 0 && data.pdfData.size() < 10485760 && // 10MB limit
+             data.createdAt is number &&
+             data.ownerId is string && data.ownerId.size() > 0 && data.ownerId.size() < 100 &&
+             (!('isUnlocked' in data) || data.isUnlocked is bool);
+    }
+
+    match /documents/{documentId} {
+      // Anyone can read a document if they have the ID (since it's a shared link)
+      allow read: if true;
+      
+      // Allow creation if the document is valid
+      allow create: if isValidDocument(request.resource.data);
+                    
+      // Allow updates if the document is valid
+      allow update: if isValidDocument(request.resource.data);
+                    
+      // Allow deletion
+      allow delete: if true;
+    }
+  }
+}

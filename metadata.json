@@ -1,0 +1,5 @@
+{
+  "name": "ArchVault",
+  "description": "Upload architectural PDFs, set a price, and generate secure links for clients to unlock.",
+  "requestFramePermissions": []
+}
